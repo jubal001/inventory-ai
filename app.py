@@ -13,11 +13,11 @@ st.title("📊 Smart Inventory & Sales Forecast System")
 # =========================
 uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-else:
-    st.info("Using sample dataset")
-    df = pd.read_csv("sample_data.csv")
+if uploaded_file is None:
+    st.warning("Please upload a CSV file to continue.")
+    st.stop()
+    
+df = pd.read_csv(uploaded_file)
 
 # =========================
 # PRODUCT SELECTION
