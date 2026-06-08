@@ -30,7 +30,22 @@ st.dataframe(df.head())
 # KPIs
 # -----------------------------
 
-total_inventory = df["Inventory"].sum()
+required_columns = [
+    "Inventory",
+    "Units Sold",
+    "Demand Forecast",
+    "Product ID",
+    "Category",
+    "Region"
+]
+
+missing = [c for c in required_columns if c not in df.columns]
+
+if missing:
+    st.error(f"Missing columns: {missing}")
+    st.write("Columns found:")
+    st.write(df.columns.tolist())
+    st.stop()
 total_units_sold = df["Units Sold"].sum()
 avg_demand = df["Demand Forecast"].mean()
 
