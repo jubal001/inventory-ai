@@ -1,133 +1,156 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Smart Inventory AI", layout="wide")
+st.set_page_config(
+    page_title="Retail Inventory Analytics",
+    layout="wide"
+)
 
-st.title("📊 Smart Inventory & Sales Forecast System")
+st.title("📊 Retail Inventory Analytics Dashboard")
 
-# =========================
-# LOAD DATA
-# =========================
-uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
+# Upload CSV
+uploaded_file = st.file_uploader(
+    "Upload Retail Inventory CSV",
+    type=["csv"]
+)
 
 if uploaded_file is None:
-    st.warning("Please upload a CSV file to continue.")
+    st.info("Please upload your retail_store_inventory.csv file")
     st.stop()
-    
+
+# Load data
 df = pd.read_csv(uploaded_file)
 
-# =========================
-# PRODUCT SELECTION
-# =========================
-required_columns = ["day", "product", "sales", "stock"]
+# Show columns
+st.subheader("Dataset Preview")
+st.dataframe(df.head())
 
-missing = [col for col in required_columns if col not in df.columns]
+# -----------------------------
+# KPIs
+# -----------------------------
 
-if missing:
-    st.error(f"Missing columns: {missing}")
-    st.write("Found columns:", df.columns.tolist())
-    st.stop()
+total_inventory = df["Inventory"].sum()
+total_units_sold = df["Units Sold"].sum()
+avg_demand = df["Demand Forecast"].mean()
 
-products = df["product"].unique()
-product = st.selectbox("Select Product", products)
+col1, col2, col3 = st.columns(3)
 
-data = df[df["product"] == product].copy()
+col1.metric(
+    "Total Inventory",
+    f"{int(total_inventory):,}"
+)
 
-st.subheader(f"📦 Data for {product}")
-st.write(data)
+col2.metric(
+    "Units Sold",
+    f"{int(total_units_sold):,}"
+)
 
-# =========================
-# FEATURES
-# =========================
-data["lag_1"] = data["sales"].shift(1)
-data["lag_2"] = data["sales"].shift(2)
-data["moving_avg"] = data["sales"].rolling(3).mean()
-data = data.dropna()
+col3.metric(
+    "Average Demand Forecast",
+    f"{avg_demand:.2f}"
+)
 
-X = data[["day", "lag_1", "lag_2", "moving_avg"]]
-y = data["sales"]
+# -----------------------------
+# Product Selection
+# -----------------------------
 
-model = RandomForestRegressor(n_estimators=100, random_state=42)
-model.fit(X, y)
+st.subheader("📦 Product Analysis")
 
-# =========================
-# KPI SECTION
-# =========================
-st.subheader("📊 Key Metrics")
+product_ids = sorted(df["Product ID"].unique())
 
-col1, col2 = st.columns(2)
-col1.metric("Total Sales", int(data["sales"].sum()))
-col2.metric("Average Sales", round(data["sales"].mean(), 2))
+selected_product = st.selectbox(
+    "Select Product",
+    product_ids
+)
 
-# =========================
-# STOCK INPUT
-# =========================
-st.subheader("📦 Current Stock")
+product_df = df[
+    df["Product ID"] == selected_product
+]
 
-stock = st.number_input("Enter current stock", min_value=0, value=int(data["stock"].iloc[-1]))
+st.write(product_df)
 
-# =========================
-# FORECAST
-# =========================
-st.subheader("🔮 Forecast (Next 14 Days)")
+# -----------------------------
+# Product Metrics
+# -----------------------------
 
-last_sales = data["sales"].iloc[-1]
-last_lag2 = data["sales"].iloc[-2]
+inventory = product_df["Inventory"].mean()
+sales = product_df["Units Sold"].mean()
+forecast = product_df["Demand Forecast"].mean()
 
-future_days = []
-predictions = []
+col1, col2, col3 = st.columns(3)
 
-for i in range(1, 15):
-    day = data["day"].max() + i
+col1.metric(
+    "Current Inventory",
+    int(inventory)
+)
 
-    lag_1 = last_sales
-    lag_2 = last_lag2
-    moving_avg = np.mean(data["sales"].tail(3))
+col2.metric(
+    "Average Units Sold",
+    int(sales)
+)
 
-    input_data = pd.DataFrame([[day, lag_1, lag_2, moving_avg]],
-                              columns=["day", "lag_1", "lag_2", "moving_avg"])
+col3.metric(
+    "Demand Forecast",
+    round(forecast, 2)
+)
 
-    pred = model.predict(input_data)[0]
+# -----------------------------
+# Restock Recommendation
+# -----------------------------
 
-    future_days.append(day)
-    predictions.append(pred)
+st.subheader("🤖 AI Restock Recommendation")
 
-    last_lag2 = last_sales
-    last_sales = pred
+safety_buffer = 1.20
 
-forecast_df = pd.DataFrame({
-    "Day": future_days,
-    "Predicted Sales": predictions
-})
+recommended_stock = forecast * safety_buffer
 
-st.line_chart(forecast_df.set_index("Day"))
-
-# =========================
-# RESTOCK ENGINE
-# =========================
-st.subheader("📦 Restock Recommendation")
-
-total_demand = sum(predictions)
-safety_stock = total_demand * 1.2  # 20% buffer
-
-restock_qty = safety_stock - stock
+restock_qty = recommended_stock - inventory
 
 if restock_qty > 0:
-    st.error(f"🚨 Restock Needed: {int(restock_qty)} units of {product}")
+    st.error(
+        f"🚨 Restock approximately {int(restock_qty)} units"
+    )
 else:
-    st.success("✅ No Restock Needed")
+    st.success(
+        "✅ Inventory level is healthy"
+    )
 
-# =========================
-# DOWNLOAD
-# =========================
-csv = forecast_df.to_csv(index=False).encode("utf-8")
+# -----------------------------
+# Category Analysis
+# -----------------------------
 
-st.download_button(
-    "📥 Download Forecast",
-    csv,
-    "forecast.csv",
-    "text/csv"
+st.subheader("🏷️ Category Analysis")
+
+category_summary = (
+    df.groupby("Category")["Units Sold"]
+      .sum()
+      .sort_values(ascending=False)
 )
+
+st.bar_chart(category_summary)
+
+# -----------------------------
+# Region Analysis
+# -----------------------------
+
+st.subheader("🌍 Regional Performance")
+
+region_summary = (
+    df.groupby("Region")["Units Sold"]
+      .sum()
+)
+
+st.bar_chart(region_summary)
+
+# -----------------------------
+# Inventory vs Demand
+# -----------------------------
+
+st.subheader("📈 Inventory vs Demand")
+
+comparison_df = product_df[
+    ["Inventory", "Demand Forecast"]
+]
+
+st.line_chart(comparison_df)
