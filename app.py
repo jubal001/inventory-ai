@@ -22,6 +22,15 @@ df = pd.read_csv(uploaded_file)
 # =========================
 # PRODUCT SELECTION
 # =========================
+required_columns = ["day", "product", "sales", "stock"]
+
+missing = [col for col in required_columns if col not in df.columns]
+
+if missing:
+    st.error(f"Missing columns: {missing}")
+    st.write("Found columns:", df.columns.tolist())
+    st.stop()
+
 products = df["product"].unique()
 product = st.selectbox("Select Product", products)
 
