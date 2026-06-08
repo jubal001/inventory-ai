@@ -142,6 +142,28 @@ else:
     )
 
 # -----------------------------
+# REVENUE ESTIMATION
+# -----------------------------
+df["Revenue"] = df["Units Sold"] * df["Price"]
+
+total_revenue = df["Revenue"].sum()
+
+st.metric(
+    "Estimated Revenue",
+    f"${total_revenue:,.2f}"
+)
+
+# -----------------------------
+# tOP 10 BEST SELLING PRODUCTS
+# -----------------------------
+top_products = (
+    df.groupby("Product ID")["Units Sold"]
+      .sum()
+      .sort_values(ascending=False)
+      .head(10)
+)
+
+# -----------------------------
 # CATEGORY PERFORMANCE
 # -----------------------------
 st.subheader("🏷️ Category Performance")
@@ -177,6 +199,24 @@ comparison_df = product_df[
 ]
 
 st.line_chart(comparison_df)
+
+# -----------------------------
+# LOW STOCK ALERT
+# -----------------------------
+st.subheader("🏆 Top 10 Best Selling Products")
+st.bar_chart(top_products)
+
+st.subheader("⚠️ Low Stock Products")
+
+low_stock = df[df["Inventory Level"] < 100]
+
+st.dataframe(
+    low_stock[
+        ["Product ID",
+         "Category",
+         "Inventory Level"]
+    ]
+)
 
 # -----------------------------
 # DOWNLOAD PRODUCT DATA
