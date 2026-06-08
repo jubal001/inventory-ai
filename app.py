@@ -1,53 +1,68 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 
+# -----------------------------
+# PAGE CONFIG
+# -----------------------------
 st.set_page_config(
-    page_title="Retail Inventory Analytics",
+    page_title="Retail Inventory Analytics Dashboard",
     layout="wide"
 )
 
 st.title("📊 Retail Inventory Analytics Dashboard")
 
-# Upload CSV
+# -----------------------------
+# FILE UPLOAD
+# -----------------------------
 uploaded_file = st.file_uploader(
     "Upload Retail Inventory CSV",
     type=["csv"]
 )
 
 if uploaded_file is None:
-    st.info("Please upload your retail_store_inventory.csv file")
+    st.info("Please upload your retail inventory CSV file.")
     st.stop()
 
-# Load data
+# -----------------------------
+# LOAD DATA
+# -----------------------------
 df = pd.read_csv(uploaded_file)
 
-# Show columns
-st.subheader("Dataset Preview")
-st.dataframe(df.head())
+# Remove accidental spaces from column names
+df.columns = df.columns.str.strip()
 
-# -----------------------------
-# KPIs
-# -----------------------------
-
+# Required columns from your dataset
 required_columns = [
-    "Inventory",
-    "Units Sold",
-    "Demand Forecast",
     "Product ID",
     "Category",
-    "Region"
+    "Region",
+    "Inventory Level",
+    "Units Sold",
+    "Demand Forecast"
 ]
 
-missing = [c for c in required_columns if c not in df.columns]
+missing = [col for col in required_columns if col not in df.columns]
 
 if missing:
     st.error(f"Missing columns: {missing}")
     st.write("Columns found:")
     st.write(df.columns.tolist())
     st.stop()
+
+# -----------------------------
+# DATA PREVIEW
+# -----------------------------
+st.subheader("Dataset Preview")
+st.dataframe(df.head())
+
+# -----------------------------
+# KPI SECTION
+# -----------------------------
+st.subheader("📈 Business KPIs")
+
+total_inventory = df["Inventory Level"].sum()
 total_units_sold = df["Units Sold"].sum()
-avg_demand = df["Demand Forecast"].mean()
+average_demand = df["Demand Forecast"].mean()
 
 col1, col2, col3 = st.columns(3)
 
@@ -57,51 +72,47 @@ col1.metric(
 )
 
 col2.metric(
-    "Units Sold",
+    "Total Units Sold",
     f"{int(total_units_sold):,}"
 )
 
 col3.metric(
     "Average Demand Forecast",
-    f"{avg_demand:.2f}"
+    f"{average_demand:.2f}"
 )
 
 # -----------------------------
-# Product Selection
+# PRODUCT ANALYSIS
 # -----------------------------
-
 st.subheader("📦 Product Analysis")
 
-product_ids = sorted(df["Product ID"].unique())
+products = sorted(df["Product ID"].astype(str).unique())
 
 selected_product = st.selectbox(
     "Select Product",
-    product_ids
+    products
 )
 
-product_df = df[
-    df["Product ID"] == selected_product
-]
+product_df = df[df["Product ID"].astype(str) == selected_product]
 
 st.write(product_df)
 
 # -----------------------------
-# Product Metrics
+# PRODUCT METRICS
 # -----------------------------
-
-inventory = product_df["Inventory"].mean()
+inventory = product_df["Inventory Level"].mean()
 sales = product_df["Units Sold"].mean()
 forecast = product_df["Demand Forecast"].mean()
 
 col1, col2, col3 = st.columns(3)
 
 col1.metric(
-    "Current Inventory",
+    "Inventory Level",
     int(inventory)
 )
 
 col2.metric(
-    "Average Units Sold",
+    "Units Sold",
     int(sales)
 )
 
@@ -111,10 +122,9 @@ col3.metric(
 )
 
 # -----------------------------
-# Restock Recommendation
+# RESTOCK RECOMMENDATION
 # -----------------------------
-
-st.subheader("🤖 AI Restock Recommendation")
+st.subheader("🤖 Restock Recommendation")
 
 safety_buffer = 1.20
 
@@ -124,18 +134,17 @@ restock_qty = recommended_stock - inventory
 
 if restock_qty > 0:
     st.error(
-        f"🚨 Restock approximately {int(restock_qty)} units"
+        f"🚨 Restock Recommended: {int(restock_qty)} units"
     )
 else:
     st.success(
-        "✅ Inventory level is healthy"
+        "✅ Current inventory is sufficient"
     )
 
 # -----------------------------
-# Category Analysis
+# CATEGORY PERFORMANCE
 # -----------------------------
-
-st.subheader("🏷️ Category Analysis")
+st.subheader("🏷️ Category Performance")
 
 category_summary = (
     df.groupby("Category")["Units Sold"]
@@ -146,26 +155,37 @@ category_summary = (
 st.bar_chart(category_summary)
 
 # -----------------------------
-# Region Analysis
+# REGION PERFORMANCE
 # -----------------------------
-
 st.subheader("🌍 Regional Performance")
 
 region_summary = (
     df.groupby("Region")["Units Sold"]
       .sum()
+      .sort_values(ascending=False)
 )
 
 st.bar_chart(region_summary)
 
 # -----------------------------
-# Inventory vs Demand
+# INVENTORY VS DEMAND
 # -----------------------------
-
-st.subheader("📈 Inventory vs Demand")
+st.subheader("📊 Inventory vs Demand")
 
 comparison_df = product_df[
-    ["Inventory", "Demand Forecast"]
+    ["Inventory Level", "Demand Forecast"]
 ]
 
 st.line_chart(comparison_df)
+
+# -----------------------------
+# DOWNLOAD PRODUCT DATA
+# -----------------------------
+csv = product_df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="📥 Download Product Data",
+    data=csv,
+    file_name=f"{selected_product}_data.csv",
+    mime="text/csv"
+)
