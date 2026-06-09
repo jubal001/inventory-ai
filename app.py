@@ -139,6 +139,49 @@ risk_products = analysis_df[analysis_df["Inventory"] < analysis_df["Forecast"]]
 st.write(f"Products at risk: {len(risk_products)}")
 st.dataframe(risk_products)
 
+at_risk = analysis_df[
+    analysis_df["Inventory"] < analysis_df["Forecast"]
+].copy()
+
+at_risk["Shortage"] = (
+    at_risk["Forecast"] - at_risk["Inventory"]
+)
+
+at_risk["Recommended Order"] = (
+    at_risk["Shortage"] * 1.2
+).round() 
+
+def risk_level(shortage):
+    if shortage > 100:
+        return "High"
+    elif shortage > 50:
+        return "Medium"
+    else:
+        return "Low"
+
+at_risk["Risk Level"] = (
+    at_risk["Shortage"]
+    .apply(risk_level)
+)
+
+st.subheader("⚠️ Inventory Risk Analysis")
+
+st.metric(
+    "Products at Risk",
+    len(at_risk)
+)
+
+risk_table = risk_table.sort_values(
+    by="Shortage",
+    ascending=False
+)
+
+st.dataframe(
+    risk_table,
+    use_container_width=True
+)
+
+
 st.subheader("💰 Revenue by Category")
 st.bar_chart(
     analysis_df.groupby("Category")["Revenue"].sum().sort_values(ascending=False)
