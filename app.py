@@ -218,6 +218,30 @@ else:
     )
 
 # -----------------------------
+# INVENTORY RISK DETECTION
+# -----------------------------
+st.subheader("⚠️ Inventory Risk Analysis")
+
+risk_products = df[
+    df["Inventory Level"] < df["Demand Forecast"]
+]
+
+st.write(
+    f"Products at risk of stockout: {len(risk_products)}"
+)
+
+st.dataframe(
+    risk_products[
+        [
+            "Product ID",
+            "Category",
+            "Inventory Level",
+            "Demand Forecast"
+        ]
+    ]
+)
+
+# -----------------------------
 # REVENUE ESTIMATION
 # -----------------------------
 df["Revenue"] = df["Units Sold"] * df["Price"]
@@ -228,6 +252,47 @@ st.metric(
     "Estimated Revenue",
     f"${total_revenue:,.2f}"
 )
+
+st.subheader("💰 Revenue Analytics")
+
+df["Revenue"] = df["Units Sold"] * df["Price"]
+
+total_revenue = df["Revenue"].sum()
+
+st.metric(
+    "Estimated Revenue",
+    f"${total_revenue:,.2f}"
+)
+
+st.subheader("🏷️ Revenue by Category")
+
+category_revenue = (
+    df.groupby("Category")["Revenue"]
+      .sum()
+      .sort_values(ascending=False)
+)
+
+st.bar_chart(category_revenue)
+
+st.subheader("🌍 Revenue by Region")
+
+region_revenue = (
+    df.groupby("Region")["Revenue"]
+      .sum()
+      .sort_values(ascending=False)
+)
+
+st.bar_chart(region_revenue)
+
+st.subheader("🏷️ Revenue by Category")
+
+category_revenue = (
+    df.groupby("Category")["Revenue"]
+      .sum()
+      .sort_values(ascending=False)
+)
+
+st.bar_chart(category_revenue)
 
 # -----------------------------
 # tOP 10 BEST SELLING PRODUCTS
