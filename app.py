@@ -55,6 +55,11 @@ if missing:
 st.subheader("Dataset Preview")
 st.dataframe(df.head())
 
+from sklearn.ensemble import
+RandomForestRegressor
+from sklearn.model_selection import
+train_test_split
+
 # -----------------------------
 # KPI SECTION
 # -----------------------------
@@ -82,6 +87,57 @@ col3.metric(
 )
 
 # -----------------------------
+# AI FEATURES SECTION
+# -----------------------------
+st.subheader("🤖 AI Demand Forecasting")
+
+model_df = df.copy()
+
+# Convert category columns to numbers
+model_df = pd.get_dummies(
+    model_df,
+    columns=["Category", "Region", "Seasonality"],
+    drop_first=True
+)
+
+# Features
+X = model_df.drop(
+    columns=[
+        "Demand Forecast",
+        "Date",
+        "Store ID",
+        "Product ID",
+        "Weather Condition"
+    ],
+    errors="ignore"
+)
+
+# Target
+y = model_df["Demand Forecast"]
+
+# Train model
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+model = RandomForestRegressor(
+    n_estimators=100,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+score = model.score(X_test, y_test)
+
+st.metric(
+    "AI Model Accuracy (R²)",
+    f"{score:.2f}"
+)
+
+# -----------------------------
 # PRODUCT ANALYSIS
 # -----------------------------
 st.subheader("📦 Product Analysis")
@@ -97,6 +153,27 @@ product_df = df[df["Product ID"].astype(str) == selected_product]
 
 st.write(product_df)
 
+prediction_row = product_df.iloc[[0]].copy()
+
+prediction_row = pd.get_dummies(
+    prediction_row,
+    columns=["Category", "Region", "Seasonality"],
+    drop_first=True
+)
+
+prediction_row = prediction_row.reindex(
+    columns=X.columns,
+    fill_value=0
+)
+
+predicted_demand = model.predict(prediction_row)[0]
+
+st.subheader("🔮 AI Predicted Demand")
+
+st.metric(
+    "Predicted Demand",
+    f"{predicted_demand:.2f}"
+)
 # -----------------------------
 # PRODUCT METRICS
 # -----------------------------
@@ -128,7 +205,7 @@ st.subheader("🤖 Restock Recommendation")
 
 safety_buffer = 1.20
 
-recommended_stock = forecast * safety_buffer
+recommended_stock = predicted_demand * safety_buffer
 
 restock_qty = recommended_stock - inventory
 
