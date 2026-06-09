@@ -32,23 +32,58 @@ df = pd.read_csv(uploaded_file)
 # Remove accidental spaces from column names
 df.columns = df.columns.str.strip()
 
-# Required columns from your dataset
-required_columns = [
-    "Product ID",
-    "Category",
-    "Region",
-    "Inventory Level",
-    "Units Sold",
-    "Demand Forecast"
-]
+st.subheader("🛠 Dataset Mapping")
 
-missing = [col for col in required_columns if col not in df.columns]
+columns = df.columns.tolist()
 
-if missing:
-    st.error(f"Missing columns: {missing}")
-    st.write("Columns found:")
-    st.write(df.columns.tolist())
-    st.stop()
+product_col = st.selectbox(
+    "Product Column",
+    columns,
+    index=columns.index(columns[0])
+)
+
+category_col = st.selectbox(
+    "Category Column",
+    columns
+)
+
+region_col = st.selectbox(
+    "Region Column",
+    columns
+)
+
+inventory_col = st.selectbox(
+    "Inventory Column",
+    columns
+)
+
+sales_col = st.selectbox(
+    "Units Sold Column",
+    columns
+)
+
+forecast_col = st.selectbox(
+    "Demand Forecast Column",
+    columns
+)
+
+price_col = st.selectbox(
+    "Price Column",
+    columns
+)
+
+# -----------------------------
+# STANDARD COLUMN NAMES
+# -----------------------------
+analysis_df = pd.DataFrame()
+
+analysis_df["Product"] = df[product_col]
+analysis_df["Category"] = df[category_col]
+analysis_df["Region"] = df[region_col]
+analysis_df["Inventory"] = df[inventory_col]
+analysis_df["Sales"] = df[sales_col]
+analysis_df["Forecast"] = df[forecast_col]
+analysis_df["Price"] = df[price_col]
 
 # -----------------------------
 # DATA PREVIEW
@@ -64,9 +99,9 @@ from sklearn.model_selection import train_test_split
 # -----------------------------
 st.subheader("📈 Business KPIs")
 
-total_inventory = df["Inventory Level"].sum()
-total_units_sold = df["Units Sold"].sum()
-average_demand = df["Demand Forecast"].mean()
+total_inventory = df["Inventory"].sum()
+total_units_sold = df["Sales"].sum()
+average_demand = df["Forecast"].mean()
 
 col1, col2, col3 = st.columns(3)
 
@@ -141,14 +176,14 @@ st.metric(
 # -----------------------------
 st.subheader("📦 Product Analysis")
 
-products = sorted(df["Product ID"].astype(str).unique())
+products = sorted(df["Product"].astype(str).unique())
 
 selected_product = st.selectbox(
     "Select Product",
     products
 )
 
-product_df = df[df["Product ID"].astype(str) == selected_product]
+product_df = df[df["Product"].astype(str) == selected_product]
 
 st.write(product_df)
 
