@@ -184,6 +184,20 @@ st.subheader("Dataset Preview")
 st.dataframe(analysis_df.head())
 
 st.subheader("📈 Business KPIs")
+revenue = analysis_df["Revenue"].sum() if "Revenue" in analysis_df.columns else 0
+
+products = analysis_df["Product"].nunique() if "Product" in analysis_df.columns else 0
+
+forecast = analysis_df["Forecast"].sum() if "Forecast" in analysis_df.columns else 0
+
+risk_count = len(
+    analysis_df[
+        analysis_df["Inventory"] < analysis_df["Forecast"]
+    ]
+) if (
+    "Inventory" in analysis_df.columns and
+    "Forecast" in analysis_df.columns
+) else 0
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
