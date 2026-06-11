@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-st.write("App started successfully")
+st.write("App started successfully!")
 
 st.set_page_config(
     page_title="InventoryAI",
@@ -125,6 +125,21 @@ AI-Powered Inventory Forecasting & Business Analytics
 </p>
 """, unsafe_allow_html=True)
 
+currency_symbol = st.sidebar.selectbox(
+    "Currency",
+    ["$", "₦", "£", "€"]
+)
+
+def format_currency(num):
+    if num >= 1_000_000_000:
+        return f"{currency_symbol}{num/1_000_000_000:.1f}B"
+    elif num >= 1_000_000:
+        return f"{currency_symbol}{num/1_000_000:.1f}M"
+    elif num >= 1_000:
+        return f"{currency_symbol}{num/1_000:.1f}K"
+    else:
+        return f"{currency_symbol}{num:,.0f}"
+
 st.set_page_config(page_title="InventoryAI Dashboard", layout="wide")
 
 st.title("📊 InventoryAI - Retail Analytics & Forecasting")
@@ -201,16 +216,29 @@ risk_count = len(
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Revenue", revenue)
+    st.metric(
+        "Revenue",
+        format_currency(revenue)
+    )
 
 with col2:
-    st.metric("Products", products)
+    st.metric(
+        "Forecast Revenue",
+        format_currency(forecast_revenue)
+    )
 
 with col3:
-    st.metric("Forecast", forecast)
+    st.metric(
+        "Products",
+        format_currency(products)
+    )
 
-with col4:
-    st.metric("Risk", risk_count)
+with col2:
+    st.metric(
+        "Risk",
+        format_currency(risk_count)
+    )
+
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total Inventory", f"{int(analysis_df['Inventory'].sum()):,}")
 c2.metric("Total Sales", f"{int(analysis_df['Sales'].sum()):,}")
