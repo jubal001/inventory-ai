@@ -137,16 +137,6 @@ st.subheader("⚠️ Inventory Risk Analysis")
 at_risk = analysis_df[
     analysis_df["Inventory"] < analysis_df["Forecast"]
 ].copy()
-
-at_risk["Shortage"] = (
-    at_risk["Forecast"] - at_risk["Inventory"]
-)
-
-at_risk["Recommended Order"] = (
-    at_risk["Shortage"] * 1.2
-).round()
-
-
 def risk_level(shortage):
     if shortage > 100:
         return "High"
