@@ -205,6 +205,28 @@ products = analysis_df["Product"].nunique() if "Product" in analysis_df.columns 
 
 forecast = analysis_df["Forecast"].sum() if "Forecast" in analysis_df.columns else 0
 
+revenue = analysis_df["Revenue"].sum() if "Revenue" in analysis_df.columns else 0
+
+products = analysis_df["Product"].nunique() if "Product" in analysis_df.columns else 0
+
+forecast = analysis_df["Forecast"].sum() if "Forecast" in analysis_df.columns else 0
+
+forecast_revenue = (
+    analysis_df["Forecast"] * analysis_df["Price"]
+).sum() if (
+    "Forecast" in analysis_df.columns and
+    "Price" in analysis_df.columns
+) else 0
+
+risk_count = len(
+    analysis_df[
+        analysis_df["Inventory"] < analysis_df["Forecast"]
+    ]
+) if (
+    "Inventory" in analysis_df.columns and
+    "Forecast" in analysis_df.columns
+) else 0
+
 risk_count = len(
     analysis_df[
         analysis_df["Inventory"] < analysis_df["Forecast"]
@@ -233,10 +255,10 @@ with col3:
         format_currency(products)
     )
 
-with col2:
+with col4:
     st.metric(
-        "Risk",
-        format_currency(risk_count)
+        "Products At Risk",
+        f"{risk_count:,}"
     )
 
 c1, c2, c3, c4 = st.columns(4)
