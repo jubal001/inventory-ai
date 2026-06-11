@@ -1,9 +1,127 @@
+st.set_page_config(
+    page_title="InventoryAI",
+    page_icon="📦",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+st.markdown("""
+<div style="
+background: linear-gradient(135deg,#2563EB,#7C3AED);
+padding:30px;
+border-radius:20px;
+margin-bottom:25px;
+">
+<h2 style="color:white;">
+📈 Inventory Intelligence Platform
+</h2>
+
+<p style="color:white;">
+Forecast demand, detect stock risks,
+optimize inventory, and increase revenue
+with AI-powered analytics.
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("""
+# 📦 InventoryAI
+
+### Smart Retail Analytics
+
+Powered by AI
+""")
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+st.markdown("""
+<style>
+
+/* Main Background */
+.stApp {
+    background-color: #0F172A;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #111827;
+    border-right: 1px solid #374151;
+}
+
+/* Headers */
+h1, h2, h3 {
+    color: white;
+    font-weight: 700;
+}
+
+/* Metrics */
+div[data-testid="metric-container"] {
+    background-color: #1E293B;
+    border: 1px solid #334155;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.25);
+}
+
+/* Tables */
+[data-testid="stDataFrame"] {
+    background-color: #1E293B;
+    border-radius: 15px;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(
+        90deg,
+        #2563EB,
+        #3B82F6
+    );
+    color: white;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 25px;
+    font-weight: bold;
+}
+
+/* Upload Area */
+[data-testid="stFileUploader"] {
+    background-color: #1E293B;
+    border-radius: 15px;
+    padding: 15px;
+}
+
+/* Inputs */
+.stSelectbox,
+.stTextInput {
+    border-radius: 10px;
+}
+
+/* KPI Cards */
+.kpi-card {
+    background-color: #1E293B;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid #334155;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<h1 style='text-align:center;color:white'>
+📦 InventoryAI Dashboard
+</h1>
+<p style='text-align:center;color:#94A3B8'>
+AI-Powered Inventory Forecasting & Business Analytics
+</p>
+""", unsafe_allow_html=True)
 
 st.set_page_config(page_title="InventoryAI Dashboard", layout="wide")
 
@@ -64,7 +182,19 @@ st.subheader("Dataset Preview")
 st.dataframe(analysis_df.head())
 
 st.subheader("📈 Business KPIs")
+col1, col2, col3, col4 = st.columns(4)
 
+with col1:
+    st.metric("Revenue", revenue)
+
+with col2:
+    st.metric("Products", products)
+
+with col3:
+    st.metric("Forecast", forecast)
+
+with col4:
+    st.metric("Risk", risk_count)
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total Inventory", f"{int(analysis_df['Inventory'].sum()):,}")
 c2.metric("Total Sales", f"{int(analysis_df['Sales'].sum()):,}")
