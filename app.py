@@ -166,13 +166,6 @@ at_risk["Risk Level"] = (
 
 st.subheader("⚠️ Inventory Risk Analysis")
 
-st.metric(
-    "Products at Risk",
-    len(at_risk)
-)
-
-st.subheader("⚠️ Inventory Risk Analysis")
-
 at_risk = analysis_df[
     analysis_df["Inventory"] < analysis_df["Forecast"]
 ].copy()
