@@ -22,7 +22,7 @@ border-radius:20px;
 margin-bottom:25px;
 ">
 <h2 style="color:white;">
-📈 Inventory Intelligence Platform
+🪩 STOCK PILOT AI
 </h2>
 
 <p style="color:white;">
