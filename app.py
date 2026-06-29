@@ -151,8 +151,8 @@ st.sidebar.markdown("---")
 # -----------------------------
 selected_products = st.sidebar.multiselect(
     "📦 Product",
-    sorted(filtered_df["Product"].unique()),
-    default=sorted(filtered_df["Product"].unique())
+    sorted(analysis_df["Product"].unique()),
+    default=sorted(analysis_df["Product"].unique())
 )
 
 # -----------------------------
@@ -160,8 +160,8 @@ selected_products = st.sidebar.multiselect(
 # -----------------------------
 selected_categories = st.sidebar.multiselect(
     "🏷️ Category",
-    sorted(filtered_df["Category"].unique()),
-    default=sorted(filtered_df["Category"].unique())
+    sorted(analysis_df["Category"].unique()),
+    default=sorted(analysis_df["Category"].unique())
 )
 
 # -----------------------------
@@ -169,9 +169,15 @@ selected_categories = st.sidebar.multiselect(
 # -----------------------------
 selected_regions = st.sidebar.multiselect(
     "🌍 Region",
-    sorted(filtered_df["Region"].unique()),
-    default=sorted(filtered_df["Region"].unique())
+    sorted(analysis_df["Region"].unique()),
+    default=sorted(analysis_df["Region"].unique())
 )
+
+filtered_df = analysis_df[
+    (analysis_df["Product"].isin(selected_products)) &
+    (analysis_df["Category"].isin(selected_categories)) &
+    (analysis_df["Region"].isin(selected_regions))
+]
 
 st.sidebar.markdown("---")
 
