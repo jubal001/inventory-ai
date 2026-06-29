@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 # PAGE CONFIG
 # -----------------------------
 st.set_page_config(
-    page_title="InventoryAI Pro",
+    page_title="SMART INVENTORTY AI Pro",
     page_icon="📦",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -69,7 +69,7 @@ div[data-testid="metric-container"]{
 # -----------------------------
 st.markdown("""
 <h1 style='text-align:center'>
-📦 InventoryAI Pro
+📦 SMART INVENTORTY AI Pro
 </h1>
 
 <p style='text-align:center;font-size:18px;color:#CBD5E1'>
@@ -966,7 +966,7 @@ st.markdown(
 """
 <div style='text-align:center;color:gray;'>
 
-### InventoryAI Pro
+### SMART INVENTORTY AI Pro
 
 AI-Powered Retail Analytics & Demand Forecasting Platform
 
