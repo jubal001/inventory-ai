@@ -616,3 +616,363 @@ else:
     st.success(
         "✅ Inventory level is sufficient."
     )
+
+# ==========================================================
+# REVENUE ANALYTICS
+# ==========================================================
+
+st.markdown("---")
+st.header("💰 Revenue Analytics")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    category_revenue = (
+        filtered_df.groupby("Category")["Revenue"]
+        .sum()
+        .sort_values(ascending=False)
+        .reset_index()
+    )
+
+    fig = px.bar(
+        category_revenue,
+        x="Category",
+        y="Revenue",
+        color="Revenue",
+        title="Revenue by Category"
+    )
+
+    fig.update_layout(
+        template="plotly_dark",
+        height=500
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+
+    region_revenue = (
+        filtered_df.groupby("Region")["Revenue"]
+        .sum()
+        .sort_values(ascending=False)
+        .reset_index()
+    )
+
+    fig = px.bar(
+        region_revenue,
+        x="Region",
+        y="Revenue",
+        color="Revenue",
+        title="Revenue by Region"
+    )
+
+    fig.update_layout(
+        template="plotly_dark",
+        height=500
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+# ==========================================================
+# PIE CHARTS
+# ==========================================================
+
+st.markdown("---")
+st.header("🥧 Distribution Analysis")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    fig = px.pie(
+        filtered_df,
+        names="Category",
+        values="Revenue",
+        hole=0.55,
+        title="Revenue Share by Category"
+    )
+
+    fig.update_layout(template="plotly_dark")
+
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+
+    fig = px.pie(
+        filtered_df,
+        names="Region",
+        values="Revenue",
+        hole=0.55,
+        title="Revenue Share by Region"
+    )
+
+    fig.update_layout(template="plotly_dark")
+
+    st.plotly_chart(fig, use_container_width=True)
+
+# ==========================================================
+# TOP PRODUCTS
+# ==========================================================
+
+st.markdown("---")
+st.header("🏆 Top 10 Best Selling Products")
+
+top_products = (
+    filtered_df.groupby("Product")["Sales"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+    .reset_index()
+)
+
+fig = px.bar(
+    top_products,
+    x="Product",
+    y="Sales",
+    color="Sales",
+    title="Top Selling Products"
+)
+
+fig.update_layout(
+    template="plotly_dark",
+    height=500
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ==========================================================
+# INVENTORY RISK ANALYSIS
+# ==========================================================
+
+st.markdown("---")
+st.header("⚠ Inventory Risk Analysis")
+
+risk_table = filtered_df[
+    filtered_df["Inventory"] < filtered_df["Forecast"]
+].copy()
+
+risk_table["Shortage"] = (
+    risk_table["Forecast"] -
+    risk_table["Inventory"]
+)
+
+risk_table = risk_table.sort_values(
+    "Shortage",
+    ascending=False
+)
+
+st.metric(
+    "Products at Risk",
+    len(risk_table)
+)
+
+st.dataframe(
+    risk_table[
+        [
+            "Product",
+            "Category",
+            "Region",
+            "Inventory",
+            "Forecast",
+            "Shortage",
+            "Risk Level",
+            "Restock Qty"
+        ]
+    ],
+    use_container_width=True
+)
+
+# ==========================================================
+# LOW STOCK PRODUCTS
+# ==========================================================
+
+st.markdown("---")
+st.header("📦 Low Stock Products")
+
+low_stock = filtered_df[
+    filtered_df["Inventory"] < (
+        filtered_df["Forecast"] * 0.50
+    )
+]
+
+st.dataframe(
+    low_stock[
+        [
+            "Product",
+            "Category",
+            "Inventory",
+            "Forecast",
+            "Restock Qty"
+        ]
+    ],
+    use_container_width=True
+)
+
+# ==========================================================
+# SALES VS FORECAST
+# ==========================================================
+
+st.markdown("---")
+st.header("📈 Sales vs Forecast")
+
+compare = filtered_df.groupby("Product")[
+    [
+        "Sales",
+        "Forecast"
+    ]
+].sum().reset_index()
+
+fig = go.Figure()
+
+fig.add_trace(
+    go.Bar(
+        x=compare["Product"],
+        y=compare["Sales"],
+        name="Sales"
+    )
+)
+
+fig.add_trace(
+    go.Bar(
+        x=compare["Product"],
+        y=compare["Forecast"],
+        name="Forecast"
+    )
+)
+
+fig.update_layout(
+    template="plotly_dark",
+    barmode="group",
+    height=600
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ==========================================================
+# INVENTORY VS FORECAST
+# ==========================================================
+
+st.markdown("---")
+st.header("📊 Inventory vs Forecast")
+
+fig = px.scatter(
+    filtered_df,
+    x="Inventory",
+    y="Forecast",
+    color="Category",
+    size="Revenue",
+    hover_name="Product",
+    title="Inventory vs Forecast"
+)
+
+fig.update_layout(
+    template="plotly_dark",
+    height=600
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ==========================================================
+# STORE PERFORMANCE
+# ==========================================================
+
+if "Store" in filtered_df.columns:
+
+    st.markdown("---")
+    st.header("🏬 Store Performance")
+
+    store_summary = (
+        filtered_df.groupby("Store")["Revenue"]
+        .sum()
+        .sort_values(ascending=False)
+        .reset_index()
+    )
+
+    fig = px.bar(
+        store_summary,
+        x="Store",
+        y="Revenue",
+        color="Revenue",
+        title="Revenue by Store"
+    )
+
+    fig.update_layout(
+        template="plotly_dark"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+# ==========================================================
+# CSV DOWNLOAD
+# ==========================================================
+
+st.markdown("---")
+
+csv = filtered_df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    "📥 Download Analysis Report",
+    csv,
+    "InventoryAI_Report.csv",
+    "text/csv"
+)
+
+# ==========================================================
+# AI EXECUTIVE INSIGHTS
+# ==========================================================
+
+st.markdown("---")
+st.header("🤖 AI Executive Insights")
+
+if risk_count > 0:
+
+    st.warning(
+        f"""
+• {risk_count} products are at risk of stock-out.
+
+• Estimated revenue:
+{format_currency(total_revenue,currency_symbol)}
+
+• Recommended action:
+Increase inventory for High Risk products immediately.
+
+• Monitor Category and Region dashboards
+for demand changes.
+"""
+    )
+
+else:
+
+    st.success(
+        """
+Excellent!
+
+No products are currently at risk.
+
+Inventory levels are healthy.
+
+Continue monitoring sales trends.
+"""
+    )
+
+# ==========================================================
+# FOOTER
+# ==========================================================
+
+st.markdown("---")
+
+st.markdown(
+"""
+<div style='text-align:center;color:gray;'>
+
+### InventoryAI Pro
+
+AI-Powered Retail Analytics & Demand Forecasting Platform
+
+Developed using Python, Streamlit, Scikit-Learn and Plotly.
+
+</div>
+""",
+unsafe_allow_html=True
+)
