@@ -125,11 +125,6 @@ AI-Powered Inventory Forecasting & Business Analytics
 </p>
 """, unsafe_allow_html=True)
 
-currency_symbol = st.sidebar.selectbox(
-    "Currency",
-    ["$", "₦", "£", "€"]
-)
-
 # -----------------------------
 # Product Filter
 # -----------------------------
@@ -219,17 +214,6 @@ forecast_col = st.selectbox("Forecast Column", df.columns,
 price_col = st.selectbox("Price Column", df.columns,
                          index=df.columns.get_loc(price_guess) if price_guess else 0)
 
-analysis_df = pd.DataFrame()
-analysis_df["Product"] = df[product_col].astype(str)
-analysis_df["Category"] = df[category_col].astype(str)
-analysis_df["Region"] = df[region_col].astype(str)
-analysis_df["Inventory"] = pd.to_numeric(df[inventory_col], errors="coerce")
-analysis_df["Sales"] = pd.to_numeric(df[sales_col], errors="coerce")
-analysis_df["Forecast"] = pd.to_numeric(df[forecast_col], errors="coerce")
-analysis_df["Price"] = pd.to_numeric(df[price_col], errors="coerce")
-analysis_df["Revenue"] = analysis_df["Sales"] * analysis_df["Price"]
-analysis_df = analysis_df.dropna()
-
 # ==================================================
 # SIDEBAR
 # ==================================================
@@ -317,6 +301,17 @@ c1.metric("Total Inventory", f"{int(analysis_df['Inventory'].sum()):,}")
 c2.metric("Total Sales", f"{int(analysis_df['Sales'].sum()):,}")
 c3.metric("Average Forecast", f"{analysis_df['Forecast'].mean():.2f}")
 c4.metric("Revenue", f"${analysis_df['Revenue'].sum():,.2f}")
+
+analysis_df = pd.DataFrame()
+analysis_df["Product"] = df[product_col].astype(str)
+analysis_df["Category"] = df[category_col].astype(str)
+analysis_df["Region"] = df[region_col].astype(str)
+analysis_df["Inventory"] = pd.to_numeric(df[inventory_col], errors="coerce")
+analysis_df["Sales"] = pd.to_numeric(df[sales_col], errors="coerce")
+analysis_df["Forecast"] = pd.to_numeric(df[forecast_col], errors="coerce")
+analysis_df["Price"] = pd.to_numeric(df[price_col], errors="coerce")
+analysis_df["Revenue"] = analysis_df["Sales"] * analysis_df["Price"]
+analysis_df = analysis_df.dropna()
 
 st.subheader("🤖 AI Demand Forecasting")
 
