@@ -125,33 +125,6 @@ AI-Powered Inventory Forecasting & Business Analytics
 </p>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# Product Filter
-# -----------------------------
-selected_products = st.sidebar.multiselect(
-    "📦 Product",
-    sorted(analysis_df["Product"].unique()),
-    default=sorted(analysis_df["Product"].unique())
-)
-
-# -----------------------------
-# Category Filter
-# -----------------------------
-selected_categories = st.sidebar.multiselect(
-    "🏷️ Category",
-    sorted(analysis_df["Category"].unique()),
-    default=sorted(analysis_df["Category"].unique())
-)
-
-# -----------------------------
-# Region Filter
-# -----------------------------
-selected_regions = st.sidebar.multiselect(
-    "🌍 Region",
-    sorted(analysis_df["Region"].unique()),
-    default=sorted(analysis_df["Region"].unique())
-)
-
 filtered_df = analysis_df[
     (analysis_df["Product"].isin(selected_products)) &
     (analysis_df["Category"].isin(selected_categories)) &
@@ -169,8 +142,6 @@ def format_currency(num):
         return f"{currency_symbol}{num/1_000:.1f}K"
     else:
         return f"{currency_symbol}{num:,.0f}"
-
-st.set_page_config(page_title="InventoryAI Dashboard", layout="wide")
 
 st.title("📊 InventoryAI - Retail Analytics & Forecasting")
 
@@ -312,6 +283,33 @@ analysis_df["Forecast"] = pd.to_numeric(df[forecast_col], errors="coerce")
 analysis_df["Price"] = pd.to_numeric(df[price_col], errors="coerce")
 analysis_df["Revenue"] = analysis_df["Sales"] * analysis_df["Price"]
 analysis_df = analysis_df.dropna()
+
+# -----------------------------
+# Product Filter
+# -----------------------------
+selected_products = st.sidebar.multiselect(
+    "📦 Product",
+    sorted(analysis_df["Product"].unique()),
+    default=sorted(analysis_df["Product"].unique())
+)
+
+# -----------------------------
+# Category Filter
+# -----------------------------
+selected_categories = st.sidebar.multiselect(
+    "🏷️ Category",
+    sorted(analysis_df["Category"].unique()),
+    default=sorted(analysis_df["Category"].unique())
+)
+
+# -----------------------------
+# Region Filter
+# -----------------------------
+selected_regions = st.sidebar.multiselect(
+    "🌍 Region",
+    sorted(analysis_df["Region"].unique()),
+    default=sorted(analysis_df["Region"].unique())
+)
 
 st.subheader("🤖 AI Demand Forecasting")
 
