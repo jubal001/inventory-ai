@@ -130,6 +130,51 @@ currency_symbol = st.sidebar.selectbox(
     ["$", "₦", "£", "€"]
 )
 
+# ==================================================
+# SIDEBAR
+# ==================================================
+st.sidebar.title("📊 Dashboard Filters")
+
+# -----------------------------
+# Currency Selection
+# -----------------------------
+currency_symbol = st.sidebar.selectbox(
+    "💱 Select Currency",
+    ["$", "₦", "£", "€"],
+    index=0
+)
+
+st.sidebar.markdown("---")
+
+# -----------------------------
+# Product Filter
+# -----------------------------
+selected_products = st.sidebar.multiselect(
+    "📦 Product",
+    sorted(analysis_df["Product"].unique()),
+    default=sorted(analysis_df["Product"].unique())
+)
+
+# -----------------------------
+# Category Filter
+# -----------------------------
+selected_categories = st.sidebar.multiselect(
+    "🏷️ Category",
+    sorted(analysis_df["Category"].unique()),
+    default=sorted(analysis_df["Category"].unique())
+)
+
+# -----------------------------
+# Region Filter
+# -----------------------------
+selected_regions = st.sidebar.multiselect(
+    "🌍 Region",
+    sorted(analysis_df["Region"].unique()),
+    default=sorted(analysis_df["Region"].unique())
+)
+
+st.sidebar.markdown("---")
+
 def format_currency(num):
     if num >= 1_000_000_000:
         return f"{currency_symbol}{num/1_000_000_000:.1f}B"
