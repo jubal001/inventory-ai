@@ -130,22 +130,6 @@ currency_symbol = st.sidebar.selectbox(
     ["$", "₦", "£", "€"]
 )
 
-# ==================================================
-# SIDEBAR
-# ==================================================
-st.sidebar.title("📊 Dashboard Filters")
-
-# -----------------------------
-# Currency Selection
-# -----------------------------
-currency_symbol = st.sidebar.selectbox(
-    "💱 Select Currency",
-    ["$", "₦", "£", "€"],
-    index=0
-)
-
-st.sidebar.markdown("---")
-
 # -----------------------------
 # Product Filter
 # -----------------------------
@@ -245,6 +229,22 @@ analysis_df["Forecast"] = pd.to_numeric(df[forecast_col], errors="coerce")
 analysis_df["Price"] = pd.to_numeric(df[price_col], errors="coerce")
 analysis_df["Revenue"] = analysis_df["Sales"] * analysis_df["Price"]
 analysis_df = analysis_df.dropna()
+
+# ==================================================
+# SIDEBAR
+# ==================================================
+st.sidebar.title("📊 Dashboard Filters")
+
+# -----------------------------
+# Currency Selection
+# -----------------------------
+currency_symbol = st.sidebar.selectbox(
+    "💱 Select Currency",
+    ["$", "₦", "£", "€"],
+    index=0
+)
+
+st.sidebar.markdown("---")
 
 st.subheader("Dataset Preview")
 st.dataframe(analysis_df.head())
