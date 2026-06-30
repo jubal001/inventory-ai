@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 # PAGE CONFIG
 # -----------------------------
 st.set_page_config(
-    page_title="SMART INVENTORTY AI Pro",
+    page_title="JUBIX SMART STOCKSENSE INVENTORY AI",
     page_icon="📦",
     layout="wide",
     initial_sidebar_state="expanded"
